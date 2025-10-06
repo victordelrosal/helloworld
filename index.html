@@ -1,24 +1,661 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hello World</title>
-<style>
-  :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Helvetica,Arial,sans-serif}
-  body{display:grid;place-items:center;height:100vh;margin:0;background:#f7f7f8}
-  .card{padding:2rem;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.08);background:white;text-align:center}
-  button{padding:.6rem 1rem;border:0;border-radius:999px;cursor:pointer}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World • Cosmic Playground</title>
+  <style>
+    :root {
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color-scheme: dark light;
+      --bg: #040413;
+      --bg-accent: rgba(255, 255, 255, 0.06);
+      --bg-card: rgba(255, 255, 255, 0.12);
+      --bg-card-hover: rgba(255, 255, 255, 0.18);
+      --text-primary: #f6f6ff;
+      --text-secondary: rgba(230, 233, 255, 0.78);
+      --accent: linear-gradient(135deg, #7f5af0 0%, #2cb1ff 50%, #ffd803 100%);
+      --shadow: 0 20px 45px rgba(17, 12, 46, 0.45);
+      --blur: saturate(140%) blur(24px);
+      --glass-border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    body[data-theme="day"] {
+      --bg: #f2fcff;
+      --bg-accent: rgba(12, 100, 200, 0.05);
+      --bg-card: rgba(255, 255, 255, 0.6);
+      --bg-card-hover: rgba(255, 255, 255, 0.85);
+      --text-primary: #0b1b3f;
+      --text-secondary: rgba(32, 46, 72, 0.75);
+      --accent: linear-gradient(135deg, #ff8e72 0%, #ffcf54 45%, #6fe3ff 100%);
+      --shadow: 0 18px 38px rgba(74, 144, 226, 0.28);
+      --glass-border: 1px solid rgba(255, 255, 255, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      transition: color 220ms ease, background 220ms ease, border 220ms ease, box-shadow 220ms ease;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text-primary);
+      background: radial-gradient(circle at top left, rgba(127, 90, 240, 0.35), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(44, 177, 255, 0.3), transparent 50%),
+        var(--bg);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: conic-gradient(from 120deg, rgba(127, 90, 240, 0.16), rgba(255, 216, 3, 0.12), rgba(44, 177, 255, 0.16));
+      filter: var(--blur);
+      opacity: 0.8;
+      pointer-events: none;
+      transform: scale(1.4);
+      z-index: -2;
+      animation: aurora 18s linear infinite;
+    }
+
+    body::after {
+      animation-direction: reverse;
+      opacity: 0.5;
+    }
+
+    @keyframes aurora {
+      0% { transform: scale(1.4) rotate(0deg); }
+      50% { transform: scale(1.45) rotate(180deg); }
+      100% { transform: scale(1.4) rotate(360deg); }
+    }
+
+    .noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.95" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)" opacity="0.06"/%3E%3C/svg%3E');
+      mix-blend-mode: soft-light;
+      opacity: 0.18;
+      z-index: -1;
+    }
+
+    .shell {
+      position: relative;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 4rem clamp(1.5rem, 4vw, 4rem) 5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 5rem;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand {
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand span {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 18px rgba(127, 90, 240, 0.9);
+    }
+
+    nav {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
+    nav a {
+      color: inherit;
+      text-decoration: none;
+      position: relative;
+      padding-bottom: 4px;
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 2px;
+      background: currentColor;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 200ms ease;
+    }
+
+    nav a:hover::after,
+    nav a:focus-visible::after {
+      transform: scaleX(1);
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 999px;
+      background: var(--bg-card);
+      border: var(--glass-border);
+      backdrop-filter: var(--blur);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    main {
+      display: grid;
+      gap: 5rem;
+    }
+
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .hero-copy h1 {
+      font-size: clamp(2.8rem, 5vw, 4.8rem);
+      margin: 0 0 1.5rem;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      text-shadow: 0 12px 30px rgba(10, 5, 34, 0.5);
+    }
+
+    .hero-copy p {
+      margin: 0 0 2.2rem;
+      font-size: 1.12rem;
+      color: var(--text-secondary);
+      max-width: 32ch;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .cta-primary,
+    .cta-ghost {
+      border: none;
+      border-radius: 999px;
+      padding: 0.8rem 1.6rem;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 180ms ease, box-shadow 220ms ease;
+    }
+
+    .cta-primary {
+      background: var(--accent);
+      color: #10172d;
+      box-shadow: 0 15px 40px rgba(127, 90, 240, 0.45);
+    }
+
+    .cta-primary:hover {
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 20px 45px rgba(127, 90, 240, 0.5);
+    }
+
+    .cta-ghost {
+      background: transparent;
+      color: var(--text-primary);
+      border: 1px solid currentColor;
+    }
+
+    .cta-ghost:hover {
+      transform: translateY(-2px);
+      color: var(--text-secondary);
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 340px;
+      display: grid;
+      place-items: center;
+    }
+
+    .planet {
+      position: relative;
+      width: clamp(260px, 32vw, 420px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(127, 90, 240, 0.7) 35%, rgba(15, 15, 60, 1) 70%);
+      box-shadow: 0 30px 60px rgba(15, 15, 60, 0.55);
+      overflow: hidden;
+      animation: drift 20s ease-in-out infinite;
+    }
+
+    .planet::before,
+    .planet::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: conic-gradient(rgba(255, 255, 255, 0.2), transparent, rgba(44, 177, 255, 0.25), transparent);
+      animation: swirl 16s linear infinite;
+      mix-blend-mode: screen;
+    }
+
+    .planet::after {
+      animation-duration: 22s;
+      animation-direction: reverse;
+      opacity: 0.6;
+    }
+
+    @keyframes drift {
+      0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+      50% { transform: translate3d(0, -18px, 0) rotate(6deg); }
+    }
+
+    @keyframes swirl {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .orbit {
+      position: absolute;
+      inset: -80px;
+      border-radius: 50%;
+      border: 1px dashed rgba(255, 255, 255, 0.18);
+      animation: orbit 24s linear infinite;
+    }
+
+    .satellite {
+      position: absolute;
+      top: 8%;
+      right: 12%;
+      width: 60px;
+      height: 60px;
+      border-radius: 20px;
+      background: var(--accent);
+      box-shadow: 0 15px 30px rgba(127, 90, 240, 0.5);
+      animation: float 9s ease-in-out infinite;
+    }
+
+    @keyframes orbit {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate3d(0, 0, 0); }
+      50% { transform: translate3d(-18px, 12px, 0); }
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(140px, 1fr));
+      gap: 1.4rem;
+      margin-top: 2.6rem;
+    }
+
+    .metric {
+      padding: 1.2rem 1.4rem;
+      border-radius: 1.4rem;
+      background: var(--bg-card);
+      backdrop-filter: var(--blur);
+      border: var(--glass-border);
+      display: grid;
+      gap: 0.35rem;
+      box-shadow: var(--shadow);
+    }
+
+    .metric strong {
+      font-size: 1.8rem;
+    }
+
+    .sections-title {
+      font-size: 1.7rem;
+      margin: 0 0 1.8rem;
+      letter-spacing: -0.01em;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.6rem;
+    }
+
+    .feature {
+      position: relative;
+      padding: 1.8rem;
+      border-radius: 1.5rem;
+      background: var(--bg-card);
+      border: var(--glass-border);
+      backdrop-filter: var(--blur);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .feature::before {
+      content: "";
+      position: absolute;
+      inset: -40% 30% 60% -30%;
+      background: var(--accent);
+      opacity: 0.18;
+      filter: blur(45px);
+      transform: rotate(6deg);
+      z-index: -1;
+    }
+
+    .feature h3 {
+      margin: 1.2rem 0 0.6rem;
+      font-size: 1.3rem;
+    }
+
+    .feature p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 0.98rem;
+    }
+
+    .feature .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    body[data-theme="day"] .feature .tag {
+      color: rgba(11, 27, 63, 0.6);
+    }
+
+    .timeline {
+      display: grid;
+      gap: 1.4rem;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 3.5rem;
+      padding-right: 1.2rem;
+      padding-block: 1.4rem;
+      background: linear-gradient(120deg, var(--bg-card) 0%, rgba(255, 255, 255, 0.02) 100%);
+      border-radius: 1.4rem;
+      border: var(--glass-border);
+      backdrop-filter: var(--blur);
+      box-shadow: var(--shadow);
+    }
+
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      left: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      box-shadow: 0 0 18px rgba(127, 90, 240, 0.7);
+    }
+
+    .timeline-item span {
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .timeline-item h4 {
+      margin: 0.4rem 0 0.6rem;
+      font-size: 1.25rem;
+    }
+
+    footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      padding-bottom: 1rem;
+    }
+
+    footer a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: var(--text-primary);
+    }
+
+    @media (max-width: 880px) {
+      header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.4rem;
+      }
+
+      nav {
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .timeline-item {
+        padding-left: 1.4rem;
+      }
+
+      .timeline-item::before {
+        left: 0.6rem;
+      }
+
+      footer {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .shell {
+        padding-top: 3.2rem;
+      }
+
+      .hero-copy p {
+        font-size: 1rem;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      }
+    }
+  </style>
 </head>
-<body>
-  <div class="card">
-    <h1>Hello, World 👋</h1>
-    <button id="btn">Click me</button>
+<body data-theme="night">
+  <div class="noise" aria-hidden="true"></div>
+  <div class="shell">
+    <header>
+      <div class="brand"><span></span>Cosmic Hello</div>
+      <nav>
+        <a href="#hero">Launch</a>
+        <a href="#features">Highlights</a>
+        <a href="#timeline">Journey</a>
+      </nav>
+      <button class="toggle" id="themeToggle" type="button" aria-pressed="false">🌙 Night Voyage</button>
+    </header>
+
+    <main>
+      <section class="hero" id="hero">
+        <div class="hero-copy">
+          <h1>Hello, World—welcome to the cosmic playground �</h1>
+          <p>
+            Break orbit from boring layouts. Craft immersive experiences with gradients, glass, and motion—powered by just a single HTML file.
+          </p>
+          <div class="cta-row">
+            <button class="cta-primary" id="launchBtn" type="button">Launch Demo</button>
+            <button class="cta-ghost" type="button" onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});">See the journey ↓</button>
+          </div>
+          <div class="metrics">
+            <div class="metric">
+              <strong>0 ➜ 1</strong>
+              <span>From hello to wow</span>
+            </div>
+            <div class="metric">
+              <strong>3x</strong>
+              <span>More delightful</span>
+            </div>
+            <div class="metric">
+              <strong>∞</strong>
+              <span>Creative potential</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="planet">
+            <div class="orbit"></div>
+            <div class="satellite"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <h2 class="sections-title">Three moments of magic</h2>
+        <div class="feature-grid">
+          <article class="feature">
+            <span class="tag">✨ Visual gravity</span>
+            <h3>Gradient atmospheres</h3>
+            <p>Paint the backdrop with layered aurora fields and gentle noise for a cinematic vibe that feels alive.</p>
+          </article>
+          <article class="feature">
+            <span class="tag">🧊 Hyperglass</span>
+            <h3>Glassmorphic canvases</h3>
+            <p>Float your content inside shimmering glass shells that react to light, motion, and theme changes.</p>
+          </article>
+          <article class="feature">
+            <span class="tag">🪐 Interactive orbit</span>
+            <h3>Microinteractions</h3>
+            <p>Animate call-to-actions, satellites, and confetti bursts that celebrate every click—no frameworks required.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="timeline">
+        <h2 class="sections-title">Mission control timeline</h2>
+        <div class="timeline">
+          <article class="timeline-item">
+            <span>T-60s</span>
+            <h4>Pre-flight ignition</h4>
+            <p>Define the vibe with color tokens that swap instantly between night voyage and daylight discovery.</p>
+          </article>
+          <article class="timeline-item">
+            <span>T-15s</span>
+            <h4>Systems humming</h4>
+            <p>Animate gradients, float satellites, and keep everything responsive—every device gets a front-row seat.</p>
+          </article>
+          <article class="timeline-item">
+            <span>T+10s</span>
+            <h4>Orbit achieved</h4>
+            <p>Shower visitors with celebratory confetti and invite them to explore deeper layers of your story.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Crafted with stellar intent in Dublin · <span id="clock">--:--</span></span>
+      <a href="#hero">Back to top ↑</a>
+    </footer>
   </div>
-<script>
-  document.getElementById('btn').addEventListener('click',()=>alert('Hello, Victor!'));
-  console.log('Hello, World from JS');
-</script>
+
+  <script>
+    const body = document.body;
+    const toggle = document.getElementById('themeToggle');
+    const clock = document.getElementById('clock');
+    const launchBtn = document.getElementById('launchBtn');
+
+    function updateClock() {
+      const now = new Date();
+      clock.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    updateClock();
+    setInterval(updateClock, 15000);
+
+    toggle.addEventListener('click', () => {
+      const isNight = body.dataset.theme === 'night';
+      body.dataset.theme = isNight ? 'day' : 'night';
+      toggle.textContent = isNight ? '☀️ Daylight Mode' : '🌙 Night Voyage';
+      toggle.setAttribute('aria-pressed', String(!isNight));
+    });
+
+    function launchConfetti(originX, originY) {
+      const colors = ['#7f5af0', '#2cb1ff', '#ffd803', '#00f5d4', '#ff6f91'];
+      const count = 36;
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement('span');
+        piece.className = 'confetti';
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        const angle = (Math.PI * 2 * i) / count;
+        const velocity = 140 + Math.random() * 120;
+        const canvasX = originX + Math.cos(angle) * 12;
+        const canvasY = originY + Math.sin(angle) * 12;
+        piece.style.setProperty('--x', `${Math.cos(angle) * velocity}px`);
+        piece.style.setProperty('--y', `${Math.sin(angle) * velocity}px`);
+        piece.style.left = `${canvasX}px`;
+        piece.style.top = `${canvasY}px`;
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 1600);
+      }
+    }
+
+    launchBtn.addEventListener('click', (event) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const originX = rect.left + rect.width / 2;
+      const originY = rect.top + window.scrollY;
+      launchConfetti(originX, originY);
+      setTimeout(() => alert('Welcome aboard, Victor! Prepare for an interstellar hello. 🚀'), 200);
+    });
+
+    const confettiStyle = document.createElement('style');
+    confettiStyle.textContent = `
+      .confetti {
+        position: absolute;
+        width: 10px;
+        height: 16px;
+        border-radius: 4px;
+        pointer-events: none;
+        animation: confetti-fall 1.6s ease-out forwards;
+        transform: translate3d(0, 0, 0);
+      }
+
+      @keyframes confetti-fall {
+        0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+        60% { opacity: 1; }
+        100% { opacity: 0; transform: translate3d(var(--x), calc(var(--y) + 220px), 0) rotate(520deg); }
+      }
+    `;
+    document.head.appendChild(confettiStyle);
+
+    console.log('Hello, World—now orbiting in style 🌌');
+  </script>
 </body>
 </html>
